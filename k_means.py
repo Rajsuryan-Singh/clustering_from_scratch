@@ -29,7 +29,8 @@ mu = x[np.random.randint(x.shape[0], size = n_clusters)]
 #Initiate assignment matrix
 
 n_points = x.shape[0]
-for iteration in  tqdm(range(n_iter)):
+converged = False
+while not converged:
 
     # E-step (assign points to centroids)
     distances = np.array([np.sum(np.square(np.array(x - i)), axis = 1) for i in mu])
@@ -40,7 +41,12 @@ for iteration in  tqdm(range(n_iter)):
 
 
     # M-step (update centroids to minimise cost)
-    mu = (np.dot(x.T, r)/sum(r)).T
+    mu_updated = (np.dot(x.T, r)/sum(r)).T
+
+    if np.all(mu_updated == mu):
+        converged = True
+    else:
+        mu = mu_updated
 
 #Plot Results
 cluster = np.argmax(r, axis = 1)
