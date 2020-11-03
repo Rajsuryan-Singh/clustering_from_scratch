@@ -1,16 +1,17 @@
 import numpy as np
 from scipy.stats import dirichlet
+from scipy.special import gamma
+
 
 class DirichletMixture:
-
     """
-    This is an implementation of a hybrid SEM algorith applied to learning a Dirichlet mixture
-    The algorithm is adapted from the following paper:
+    Description
+    -----------
 
-    N. Bouguila and D. Ziou, "A hybrid SEM algorithm for high-dimensional unsupervised learning
-    using a finite generalized Dirichlet mixture,"in IEEE Transactions on Image Processing, 
-    vol. 15, no. 9, pp. 2657-2668, Sept. 2006, doi: 10.1109/TIP.2006.877379.
-
+    The parameters alpha_i for a finite dirichlet mixture are estimated using EM. 
+    The variable names correspond to the following quantities:
+    pi - mixing probability for a given component
+    Z - the latent variable of dimensions N x D that denotes the assignment vector
     """
 
     def __init__(self, k, max_iter=5):
@@ -29,9 +30,9 @@ class DirichletMixture:
         self.sigma = [ np.cov(X.T) for _ in range(self.k) ]
 
     def e_step(self, X):
-        # E-Step: update weights and phi holding mu and sigma constant
-        self.weights = self.predict_proba(X)
-        self.phi = self.weights.mean(axis=0)
+        # E-Step: calculate delta for the current values of alpha and pi
+        self.delta = self.calc_delta(X)
+
     
     def m_step(self, X):
         # M-Step: update mu and sigma holding phi and weights constant
@@ -50,18 +51,12 @@ class DirichletMixture:
             self.e_step(X)
             self.m_step(X)
             
-    def predict_proba(self, X):
-        likelihood = np.zeros( (self.n, self.k) )
-        for i in range(self.k):
-            distribution = dirichlet(
-                mean=self.mu[i], 
-                cov=self.sigma[i])
-            likelihood[:,i] = distribution.pdf(X)
+    def calc_delta(self, X):
+        delta = np.zeros( (self.n, self.k) )
+        # Simplify the implementation by naming smaller terms and vectorise as much as possible
         
-        numerator = likelihood * self.phi
-        denominator = numerator.sum(axis=1)[:, np.newaxis]
-        weights = numerator / denominator
-        return weights
+        delta = numerator / denominator
+        return delta
     
     def predict(self, X):
         weights = self.predict_proba(X)

@@ -48,7 +48,11 @@ This is also assured to converge. This is a class of algorithms called coordinat
 
 Not many resources available on the internet. People have done it using EM [1], Gibbs sampling [2] and SEM [3]. 
 
-The approach implemented here is the SEM, the hybrid SEM as the authors have named it. It works on the generalised dirichlet distribution where we allow our random variables to be positively correlated [4]. In the dirichlet distribution, all the random variables are negatively correlated. This might not be the case in observed data and it has been shown to be otherwise [4] in the case of biological data. Intuitively speaking, the negative correlation only holds if the data is of a  multinomial nature i.e. chosing the occurence of one automatically ensures that the others don't occur. There can be data that would be conviniently modelled by the dirichlet distribution but do not adhere to this multinomial quality. Notes in music (which can be represented by a 12 element vector at any given time) are a good example of such data. Notes are bound to be positively correlated as there are multiple notes in any given chord and any occurence of that chord means the occurence of all of those notes at the same time. The use of the generalised dirichlet distribution would be appropriate in such cases.
+I'll first implement it simply using EM for the dirichlet distribution. 
+
+The hybrid SEM proposed in 3 is interesting. It works on the generalised dirichlet distribution where we allow our random variables to be positively correlated [4]. In the dirichlet distribution, all the random variables are negatively correlated. This might not be the case in observed data and it has been shown to be otherwise [4] in the case of biological data. Intuitively speaking, the negative correlation only holds if the data is of a  multinomial nature i.e. chosing the occurence of one automatically ensures that the others don't occur. There can be data that would be conviniently modelled by the dirichlet distribution but do not adhere to this multinomial quality. Notes in music (which can be represented by a 12 element vector at any given time) are a good example of such data. Notes are bound to be positively correlated as there are multiple notes in any given chord and any occurence of that chord means the occurence of all of those notes at the same time. The use of the generalised dirichlet distribution would be appropriate in such cases. This can be explored in the future as a potential
+
+### The Algorithm 
 
 
 
