@@ -2,8 +2,7 @@ import numpy as np
 from scipy.stats import dirichlet
 from scipy.special import gamma
 import matplotlib.pyplot as plt 
-
-
+from sklearn.cluster import KMeans
 
 class DirichletMixture:
     """
@@ -23,6 +22,14 @@ class DirichletMixture:
         self.n_clusters = n_clusters
         self.max_iter = int(max_iter)
 
+    def init_alpha(self, X):
+        # Crude estimate for the values of alpha based on the initialised clusters
+        # Adapted from the matlab script for fastfit by Thomas P. Minka
+
+        E = np.mean(X, axis = 0)
+        E2 = np.mean(np.square(X), axis = 0)
+        return ((E[0] - E2[0]) / (E2[0] - np.square(E[0]))) * E
+
     def initialize(self, X):
         self.shape = X.shape
         self.n, self.m = self.shape
@@ -32,7 +39,22 @@ class DirichletMixture:
         self.alpha = np.zeros((self.n_clusters, self.m ))
 
         #Modify using k-means 
-        #TODO 
+        kmeans = KMeans(n_clusters = self.n_clusters).fit(X)
+        labels = kmeans.labels_
+        X_subsets = dict()
+
+        #Divide the data into subsets to estimate the alphas for each cluster
+        for i in range(self.n_clusters):
+            X_subsets[i] = X[labels == i]
+        
+        #Estimate alpha for each cluster
+        for i in range(self.n_clusters):
+            self.alpha[i, :] = self.init_alpha(X_subsets[i])
+
+        #Estimate pi using the initial cluster assignments
+        for i in range(self.n_clusters):
+            self.pi[i] = np.sum(labels == i)/len(labels)
+        
 
 
     def e_step(self, X):
@@ -112,14 +134,14 @@ class DirichletMixture:
         return np.argmax(self.delta, axis=1)
 
 #Test on synthetic data
-alpha1 = 5, 1
+alpha1 = 10, 1
 points1 = np.random.dirichlet(alpha1, size = (100) )
 
-alpha2 = 3, 8
+alpha2 = 1,10
 points2 = np.random.dirichlet(alpha2, size = (100) )
 
 
-alpha3 = 1, 4
+alpha3 = 30,30
 points3 = np.random.dirichlet(alpha3, size = (100) )
 
 
